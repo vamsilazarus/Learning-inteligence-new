@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Learning Intelligence</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root {
+    --primary:#1a237e;
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --border:#e5e7eb;
+    --warn:#f59e0b;
+    --danger:#dc2626;
+    --success:#16a34a;
+}
+
+* { box-sizing:border-box; }
+
+body {
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+/* HEADER */
+header {
+    background:linear-gradient(135deg,#1a237e,#3949ab);
+    color:#fff;
+    padding:24px 20px;
+}
+
+header h1 {
+    margin:0;
+    font-size:26px;
+    font-weight:600;
+}
+
+header p {
+    margin:6px 0 0;
+    opacity:.9;
+}
+
+/* LAYOUT */
+.container {
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
+}
+
+.grid {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:20px;
+}
+
+.card {
+    background:var(--card);
+    border-radius:14px;
+    padding:18px;
+    border:1px solid var(--border);
+}
+
+/* FORM */
+input, textarea, select {
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    margin-top:8px;
+    font-size:16px;
+}
+
+textarea { resize:vertical; }
+
+button {
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    padding:12px 16px;
+    border-radius:12px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+button.secondary {
+    background:#eef2ff;
+    color:var(--primary);
+}
+
+.actions {
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+    flex-wrap:wrap;
+}
+
+/* STATS */
+.stat {
+    font-size:36px;
+    font-weight:700;
+}
+
+.progress-bar {
+    height:10px;
+    background:#e5e7eb;
+    border-radius:6px;
+    overflow:hidden;
+    margin-top:6px;
+}
+
+.progress {
+    height:100%;
+    background:var(--primary);
+}
+
+/* TABLE */
+table {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:12px;
+}
+
+th, td {
+    padding:12px;
+    border-bottom:1px solid var(--border);
+    vertical-align:top;
+}
+
+th {
+    text-align:left;
+    color:var(--muted);
+    font-size:13px;
+}
+
+.score-low { color:var(--danger); font-weight:600; }
+.score-mid { color:var(--warn); font-weight:600; }
+.score-high { color:var(--success); font-weight:600; }
+
+.edit {
+    color:var(--primary);
+    cursor:pointer;
+    font-size:13px;
+}
+
+/* TIMELINE */
+.timeline {
+    border-left:3px solid var(--primary);
+    padding-left:16px;
+}
+
+.timeline-item {
+    margin-bottom:14px;
+}
+
+.timeline-item small {
+    color:var(--muted);
+}
+
+/* REMINDER */
+.reminder {
+    background:#fff7ed;
+    border-left:4px solid var(--warn);
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:10px;
+}
+
+/* ---------- MOBILE RESPONSIVE ---------- */
+@media (max-width: 768px) {
+
+    header h1 { font-size:22px; }
+
+    .container { padding:14px; }
+
+    .grid { grid-template-columns:1fr; }
+
+    table, thead, tbody, th, td, tr { display:block; }
+
+    thead { display:none; }
+
+    tr {
+        margin-bottom:14px;
+        border:1px solid var(--border);
+        border-radius:12px;
+        padding:12px;
+        background:#fff;
+    }
+
+    td {
+        border:none;
+        padding:6px 0;
+    }
+
+    td::before {
+        content: attr(data-label);
+        display:block;
+        font-size:12px;
+        font-weight:600;
+        color:var(--muted);
+        margin-bottom:2px;
+    }
+
+    button {
+        width:100%;
+        font-size:16px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Learning Intelligence</h1>
+    <p>Responsive professional learning tracker (URL-based)</p>
+</header>
+
+<div class="container">
+
+    <!-- DASHBOARD -->
+    <div class="grid">
+        <div class="card">
+            <h3>Total Mastery</h3>
+            <div class="stat" id="mastery">0%</div>
+            <div class="progress-bar">
+                <div class="progress" id="masteryBar"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Area Progress</h3>
+            <div id="areaChart"></div>
+        </div>
+    </div>
+
+    <!-- ADD / EDIT -->
+    <div class="card" style="margin-top:20px">
+        <h3>Add / Revise Learning</h3>
+        <input type="hidden" id="editId">
+        <input id="topic" placeholder="Topic">
+        <textarea id="note" rows="5" placeholder="What did you learn?"></textarea>
+
+        <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:10px">
+            <input id="score" type="number" placeholder="Score %">
+            <select id="area">
+                <option>SAP QM</option>
+                <option>LIMS</option>
+                <option>Other</option>
+            </select>
+        </div>
+
+        <div class="actions">
+            <button onclick="save()">Save</button>
+            <button class="secondary" onclick="exportBackup()">Backup</button>
+        </div>
+    </div>
+
+    <!-- REMINDERS + TIMELINE -->
+    <div class="grid" style="margin-top:20px">
+        <div class="card">
+            <h3>Revision Reminders</h3>
+            <div id="reminders"></div>
+        </div>
+
+        <div class="card">
+            <h3>Learning Timeline</h3>
+            <div class="timeline" id="timeline"></div>
+        </div>
+    </div>
+
+    <!-- LOGS -->
+    <div class="card" style="margin-top:20px">
+        <h3>Knowledge Logs</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Score</th>
+                    <th>Details</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="table"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+let logs = JSON.parse(localStorage.getItem("learning_responsive")) || [];
+
+function save(){
+    if(!topic.value || !note.value) return alert("Fill required fields");
+
+    const id = editId.value;
+
+    if(id){
+        const i = logs.find(x=>x.ts==id);
+        Object.assign(i,{
+            topic:topic.value,
+            note:note.value,
+            score:+score.value||0,
+            area:area.value,
+            date:new Date().toLocaleString(),
+            ts:Date.now()
+        });
+    } else {
+        logs.push({
+            topic:topic.value,
+            note:note.value,
+            score:+score.value||0,
+            area:area.value,
+            date:new Date().toLocaleString(),
+            ts:Date.now()
+        });
+    }
+
+    localStorage.setItem("learning_responsive",JSON.stringify(logs));
+    editId.value=topic.value=note.value=score.value="";
+    render();
+}
+
+function editEntry(ts){
+    const l = logs.find(x=>x.ts===ts);
+    topic.value=l.topic;
+    note.value=l.note;
+    score.value=l.score;
+    area.value=l.area;
+    editId.value=ts;
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function render(){
+    table.innerHTML="";
+    timeline.innerHTML="";
+    reminders.innerHTML="";
+    areaChart.innerHTML="";
+
+    let total=0,count=0,areaMap={},now=Date.now();
+
+    logs.slice().reverse().forEach(l=>{
+        const cls = l.score<50?"score-low":l.score<75?"score-mid":"score-high";
+
+        table.innerHTML+=`
+        <tr>
+            <td data-label="Score" class="${cls}">${l.score}%</td>
+            <td data-label="Details"><b>${l.topic}</b><br><small>${l.note.replace(/\n/g,"<br>")}</small></td>
+            <td data-label="Date">${l.date}</td>
+            <td data-label="Action"><span class="edit" onclick="editEntry(${l.ts})">Edit</span></td>
+        </tr>`;
+
+        timeline.innerHTML+=`
+        <div class="timeline-item">
+            <b>${l.topic}</b><br><small>${l.date}</small>
+        </div>`;
+
+        total+=l.score; count++;
+        areaMap[l.area]=(areaMap[l.area]||[]).concat(l.score);
+
+        if(l.score<60 || (now-l.ts)/86400000>7){
+            reminders.innerHTML+=`<div class="reminder">🔁 ${l.topic} needs revision</div>`;
+        }
+    });
+
+    const avg = count?Math.round(total/count):0;
+    mastery.innerText=avg+"%";
+    masteryBar.style.width=avg+"%";
+
+    for(let a in areaMap){
+        const avgA=Math.round(areaMap[a].reduce((x,y)=>x+y)/areaMap[a].length);
+        areaChart.innerHTML+=`
+        <small>${a} – ${avgA}%</small>
+        <div class="progress-bar"><div class="progress" style="width:${avgA}%"></div></div>`;
+    }
+
+    if(!reminders.innerHTML) reminders.innerHTML="🎉 No pending revisions";
+}
+
+function exportBackup(){
+    const blob=new Blob([JSON.stringify(logs)],{type:"application/json"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="learning_backup.json";
+    a.click();
+}
+
+render();
+</script>
+
+</body>
+</html>
